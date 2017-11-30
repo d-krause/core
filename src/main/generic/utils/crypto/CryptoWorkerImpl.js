@@ -127,6 +127,15 @@ class CryptoWorkerImpl extends IWorker.Stub(CryptoWorker) {
         return publicKey;
     }
 
+    async publicKeyGetX(publicKey) {
+        const publicKeyX = new Uint8Array(CryptoWorker.PUBLIC_KEY_SIZE);
+        this._pubKeyBuffer.set(publicKey);
+        Module._ed25519_public_key_x(this._privKeyPointer, this._pubKeyPointer);
+        this._pubKeyBuffer.fill(0);
+        publicKeyX.set(this._privKeyBuffer);
+        return publicKeyX;
+    }
+
     /**
      * @param {Uint8Array} privateKey
      * @param {Uint8Array} publicKey

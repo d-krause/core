@@ -38,6 +38,12 @@ class CryptoWorker {
      */
     async publicKeyDerive(privateKey) {}
 
+        /**
+     * @param publicKey
+     * @returns {Promise.<Uint8Array>}
+     */
+    async publicKeyGetX(publicKey) {}
+
     /**
      * @param {Uint8Array} privateKey
      * @param {Uint8Array} publicKey

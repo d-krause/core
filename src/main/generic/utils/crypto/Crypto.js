@@ -88,6 +88,10 @@ class Crypto {
         };
     }
 
+    static async publicKeyGetX(publicKey) {
+        const worker = await Crypto._cryptoWorkerSync();
+        return worker.publicKeyGetX(publicKey);
+    }
     static keyPairPrivate(obj) {
         return obj.privateKey;
     }

@@ -61,6 +61,14 @@ class PublicKey extends Primitive {
     async toAddress() {
         return new Address((await Hash.light(this.serialize())).subarray(0, 20));
     }
+
+     /**
+     * @return {Promise.<Uint8Array>}
+     */
+    async getX() {
+        const ret = await Crypto.publicKeyGetX(this._obj);
+        return ret;
+    }
 }
 
 Class.register(PublicKey);
