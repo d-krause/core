@@ -85,6 +85,12 @@ class FullConsensusAgent extends BaseConsensusAgent {
         // Subscribe to all announcements from the peer.
         this._peer.channel.subscribe(Subscription.ANY);
 
+        // Request the peer's mempool.
+        // XXX Use a random delay here to prevent requests to multiple peers at once.
+        const delay = FullConsensusAgent.MEMPOOL_DELAY_MIN
+            + Math.random() * (FullConsensusAgent.MEMPOOL_DELAY_MAX - FullConsensusAgent.MEMPOOL_DELAY_MIN);
+        setTimeout(() => this._peer.channel.mempool(), delay);
+
         this._syncing = false;
         this._synced = true;
 
@@ -213,12 +219,19 @@ class FullConsensusAgent extends BaseConsensusAgent {
         const onFork = !(await this._getBlock(hash, /*includeForks*/ false));
         if (onFork) {
             this._numBlocksForking++;
-            if (this._forkHead && !(await block.isImmediateSuccessorOf(this._forkHead))) {
-                // The peer is sending fork blocks, but they are not forming a chain. Drop peer.
-                this._peer.channel.close('conspicuous fork');
-                return;
-            }
             this._forkHead = block;
+        }
+    }
+
+    /**
+     * @returns {void}
+     * @protected
+     * @override
+     */
+    _onNoUnknownObjects() {
+        // The peer does not have any new inv vectors for us.
+        if (this._syncing) {
+            this.syncBlockchain();
         }
     }
 
@@ -256,11 +269,6 @@ class FullConsensusAgent extends BaseConsensusAgent {
             case FullChain.OK_FORKED:
                 if (this._syncing) {
                     this._numBlocksForking++;
-                    if (this._forkHead && !(await block.isImmediateSuccessorOf(this._forkHead))) {
-                        // The peer is sending fork blocks, but they are not forming a chain. Drop peer.
-                        this._peer.channel.close('conspicuous fork');
-                        break;
-                    }
                     this._forkHead = block;
                 }
                 break;
@@ -422,14 +430,22 @@ class FullConsensusAgent extends BaseConsensusAgent {
     async _onMempool(msg) {
         // Query mempool for transactions
         const transactions = await this._mempool.getTransactions();
-        if (!transactions || transactions.length === 0) return;
 
-        // Send InvVector for each transaction in the mempool.
-        const vectors = [];
+        // Send an InvVector for each transaction in the mempool.
+        // Split into multiple Inv messages if the mempool is large.
+        let vectors = [];
         for (const tx of transactions) {
             vectors.push(await InvVector.fromTransaction(tx));
+
+            if (vectors.length >= BaseInventoryMessage.VECTORS_MAX_COUNT) {
+                this._peer.channel.inv(vectors);
+                vectors = [];
+            }
         }
-        this._peer.channel.inv(vectors);
+
+        if (vectors.length > 0) {
+            this._peer.channel.inv(vectors);
+        }
     }
 }
 /**
@@ -450,4 +466,14 @@ FullConsensusAgent.GETBLOCKS_VECTORS_MAX = 500;
  * @type {number}
  */
 FullConsensusAgent.RESYNC_THROTTLE = 1000 * 3; // 3 seconds
+/**
+ * Minimum time {ms} to wait before triggering the initial mempool request.
+ * @type {number}
+ */
+FullConsensusAgent.MEMPOOL_DELAY_MIN = 1000 * 2; // 2 seconds
+/**
+ * Maximum time {ms} to wait before triggering the initial mempool request.
+ * @type {number}
+ */
+FullConsensusAgent.MEMPOOL_DELAY_MAX = 1000 * 20; // 20 seconds
 Class.register(FullConsensusAgent);

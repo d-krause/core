@@ -20,7 +20,7 @@ const sources = {
             './src/main/generic/utils/Observable.js',
             './src/main/platform/browser/crypto/CryptoLib.js',
             './src/main/platform/browser/network/NetworkConfig.js',
-            './src/main/platform/browser/network/webrtc/WebRtcCertificate.js',
+            './src/main/platform/browser/network/webrtc/WebRtcStore.js',
             './src/main/platform/browser/network/webrtc/WebRtcConfig.js',
             './src/main/platform/browser/network/webrtc/WebRtcDataChannel.js',
             './src/main/platform/browser/network/webrtc/WebRtcUtils.js',
@@ -108,6 +108,7 @@ const sources = {
         './src/main/generic/network/address/NetAddress.js',
         './src/main/generic/network/address/PeerAddress.js',
         './src/main/generic/network/address/PeerAddresses.js',
+        './src/main/generic/network/address/SignalId.js',
         './src/main/generic/network/message/Message.js',
         './src/main/generic/network/message/AddrMessage.js',
         './src/main/generic/network/message/BlockMessage.js',
@@ -176,7 +177,9 @@ const sources = {
 const dependencies = ['./node_modules/jungle-db/dist/web.js']; // external dependencies
 
 const babel_config = {
-    plugins: ['transform-runtime', 'transform-es2015-modules-commonjs'],
+    plugins: [['transform-runtime', {
+        'polyfill': false
+    }], 'transform-es2015-modules-commonjs'],
     presets: ['es2016', 'es2017']
 };
 

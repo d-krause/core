@@ -203,6 +203,8 @@ class BaseConsensusAgent extends Observable {
             else {
                 this._timers.setTimeout('inv', () => this._requestData(), BaseConsensusAgent.REQUEST_THROTTLE);
             }
+        } else {
+            this._onNoUnknownObjects();
         }
     }
 
@@ -383,7 +385,7 @@ class BaseConsensusAgent extends Observable {
      */
     async _onTx(msg) {
         const hash = await msg.transaction.hash();
-        Log.i(BaseConsensusAgent, `[TX] Received transaction ${hash} from ${this._peer.peerAddress}`);
+        //Log.i(BaseConsensusAgent, `[TX] Received transaction ${hash} from ${this._peer.peerAddress}`);
 
         // Check if we have requested this transaction.
         const vector = new InvVector(InvVector.Type.TRANSACTION, hash);
@@ -467,6 +469,13 @@ class BaseConsensusAgent extends Observable {
         } else {
             this._onAllObjectsReceived();
         }
+    }
+
+    /**
+     * @returns {void}
+     * @protected
+     */
+    _onNoUnknownObjects() {
     }
 
     /**

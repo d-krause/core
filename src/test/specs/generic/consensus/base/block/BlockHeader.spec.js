@@ -7,7 +7,7 @@ describe('BlockHeader', () => {
     const timestamp = 1;
     const nonce = 1;
 
-    it('is 150 bytes long', () => {
+    it('is 146 bytes long', () => {
 
         //   2 bytes version
         //  32 bytes prevHash
@@ -28,8 +28,16 @@ describe('BlockHeader', () => {
         expect(serialized.byteLength).toBe(146);
     });
 
+    it('has the correct size set in BlockHeader.SERIALIZED_SIZE', () => {
+        const blockHeader1 = new BlockHeader(prevHash, interlinkHash, bodyHash, accountsHash, difficulty, 1, timestamp, nonce);
+
+        const serialized = blockHeader1.serialize();
+
+        expect(BlockHeader.SERIALIZED_SIZE).toBe(serialized.byteLength);
+    });
 
     it('must have a well defined prevHash (32 bytes)', () => {
+        /* eslint-disable no-unused-vars */
         expect(() => {
             const test1 = new BlockHeader(undefined, interlinkHash, bodyHash, accountsHash, difficulty, 2, timestamp, nonce);
         }).toThrow('Malformed prevHash');
@@ -48,9 +56,11 @@ describe('BlockHeader', () => {
         expect(() => {
             const test5 = new BlockHeader(new ArrayBuffer(32), interlinkHash, bodyHash, accountsHash, difficulty, 2, timestamp, nonce);
         }).toThrow('Malformed prevHash');
+        /* eslint-enable no-unused-vars */
     });
 
     it('must have a well defined interlinkHash (32 bytes)', () => {
+        /* eslint-disable no-unused-vars */
         expect(() => {
             const test1 = new BlockHeader(prevHash, undefined, bodyHash, accountsHash, difficulty, 2, timestamp, nonce);
         }).toThrow('Malformed interlinkHash');
@@ -69,9 +79,11 @@ describe('BlockHeader', () => {
         expect(() => {
             const test5 = new BlockHeader(prevHash, new Uint8Array(32), bodyHash, accountsHash, difficulty, 2, timestamp, nonce);
         }).toThrow('Malformed interlinkHash');
+        /* eslint-enable no-unused-vars */
     });
 
     it('must have a well defined bodyHash (32 bytes)', () => {
+        /* eslint-disable no-unused-vars */
         expect(() => {
             const test1 = new BlockHeader(prevHash, interlinkHash, undefined, accountsHash, difficulty, 2, timestamp, nonce);
         }).toThrow('Malformed bodyHash');
@@ -90,9 +102,11 @@ describe('BlockHeader', () => {
         expect(() => {
             const test5 = new BlockHeader(prevHash, interlinkHash, new Uint8Array(32), accountsHash, difficulty, 2, timestamp, nonce);
         }).toThrow('Malformed bodyHash');
+        /* eslint-enable no-unused-vars */
     });
 
     it('must have a well defined accountsHash (32 bytes)', () => {
+        /* eslint-disable no-unused-vars */
         expect(() => {
             const test1 = new BlockHeader(prevHash, interlinkHash, bodyHash, undefined, difficulty, 2, timestamp, nonce);
         }).toThrow('Malformed accountsHash');
@@ -111,6 +125,7 @@ describe('BlockHeader', () => {
         expect(() => {
             const test5 = new BlockHeader(prevHash, interlinkHash, bodyHash, new Uint8Array(32), difficulty, 2, timestamp, nonce);
         }).toThrow('Malformed accountsHash');
+        /* eslint-enable no-unused-vars */
     });
 
     it('must have a well defined nonce (4 bytes)', () => {

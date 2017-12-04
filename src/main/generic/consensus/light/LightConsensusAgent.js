@@ -110,7 +110,7 @@ class LightConsensusAgent extends FullConsensusAgent {
         // Case 3: We are are syncing.
         if (this._syncing && !this._busy) {
             if (this._catchup) {
-                await super.syncBlockchain();
+                await FullConsensusAgent.prototype.syncBlockchain.call(this);
             } else {
                 // Initialize partial chain on first call.
                 if (!this._partialChain) {
@@ -451,11 +451,6 @@ class LightConsensusAgent extends FullConsensusAgent {
             case FullChain.OK_FORKED:
                 if (this._syncing) {
                     this._numBlocksForking++;
-                    if (this._forkHead && !(await block.isImmediateSuccessorOf(this._forkHead))) {
-                        // The peer is sending fork blocks, but they are not forming a chain. Drop peer.
-                        this._peer.channel.close('conspicuous fork');
-                        break;
-                    }
                     this._forkHead = block;
                 }
                 break;
@@ -463,6 +458,30 @@ class LightConsensusAgent extends FullConsensusAgent {
             case LightChain.ERR_ORPHAN:
                 this._onOrphanBlock(hash, block);
                 break;
+        }
+    }
+
+    /**
+     * @param {Hash} hash
+     * @param {Block} block
+     * @returns {void}
+     * @protected
+     * @override
+     */
+    async _onKnownBlockAnnounced(hash, block) {
+        if (this._syncing && this._catchup) {
+            // If we find that we are on a fork far away from our chain, resync.
+            if (block.height < this._chain.height - Policy.NUM_BLOCKS_VERIFICATION
+                && (!this._partialChain || this._partialChain.state !== PartialLightChain.State.PROVE_BLOCKS)) {
+                this._onMainChain = false;
+                await this._initChainProofSync();
+                this.syncBlockchain().catch(e => Log.e(LightConsensusAgent, e));
+                return;
+            } else {
+                this._onMainChain = true;
+            }
+
+            FullConsensusAgent.prototype._onKnownBlockAnnounced.call(this, hash, block);
         }
     }
 
@@ -567,7 +586,7 @@ class LightConsensusAgent extends FullConsensusAgent {
  * Maximum time (ms) to wait for chainProof after sending out getChainProof before dropping the peer.
  * @type {number}
  */
-LightConsensusAgent.CHAINPROOF_REQUEST_TIMEOUT = 1000 * 10;
+LightConsensusAgent.CHAINPROOF_REQUEST_TIMEOUT = 1000 * 20;
 /**
  * Maximum time (ms) to wait for chainProof after sending out getChainProof before dropping the peer.
  * @type {number}

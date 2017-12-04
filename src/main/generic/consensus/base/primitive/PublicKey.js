@@ -62,6 +62,13 @@ class PublicKey extends Primitive {
         return new Address((await Hash.light(this.serialize())).subarray(0, 20));
     }
 
+    /**
+     * @return {Promise.<SignalId>}
+     */
+    async toSignalId() {
+        return new SignalId((await Hash.light(this.serialize())).subarray(0, 16));
+    }
+
      /**
      * @return {Promise.<Uint8Array>}
      */
@@ -69,6 +76,7 @@ class PublicKey extends Primitive {
         const ret = await Crypto.publicKeyGetX(this._obj);
         return ret;
     }
+    
 }
 
 Class.register(PublicKey);

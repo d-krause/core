@@ -177,7 +177,7 @@ class BlockHeader {
      * @returns {string}
      */
     toString() {
-        return `BlockHeader{`
+        return 'BlockHeader{'
             + `prevHash=${this._prevHash}, `
             + `interlinkHash=${this._interlinkHash}, `
             + `bodyHash=${this._bodyHash}, `
@@ -186,7 +186,7 @@ class BlockHeader {
             + `height=${this._height}, `
             + `timestamp=${this._timestamp}, `
             + `nonce=${this._nonce}`
-            + `}`;
+            + '}';
     }
 
     /** @type {Hash} */
@@ -250,4 +250,5 @@ class BlockHeader {
 }
 BlockHeader.CURRENT_VERSION = 1;
 BlockHeader.SUPPORTED_VERSIONS = [1];
+BlockHeader.SERIALIZED_SIZE = 146;
 Class.register(BlockHeader);
