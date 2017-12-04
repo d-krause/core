@@ -11641,27 +11641,16 @@ function _ed25519_public_key_derive($0,$1) {
 function _ed25519_public_key_x($0,$1) {
  $0 = $0|0;
  $1 = $1|0;
- var $10 = 0, $11 = 0, $12 = 0, $13 = 0, $2 = 0, $3 = 0, $4 = 0, $5 = 0, $6 = 0, $7 = 0, $8 = 0, $9 = 0, label = 0, sp = 0;
+ var $2 = 0, $3 = 0, $4 = 0, label = 0, sp = 0;
  sp = STACKTOP;
- STACKTOP = STACKTOP + 240|0;
- $2 = sp + 80|0;
- $3 = sp + 40|0;
- $4 = sp;
- $5 = (_ge_frombytes_negate_vartime($2,$1)|0);
- $6 = ($5|0)==(0);
- if (!($6)) {
+ STACKTOP = STACKTOP + 160|0;
+ $2 = sp;
+ $3 = (_ge_frombytes_negate_vartime($2,$1)|0);
+ $4 = ($3|0)==(0);
+ if (!($4)) {
   STACKTOP = sp;return;
  }
- _fe_mul($4,$2,$3);
- _fe_tobytes($0,$4);
- $7 = (_fe_isnegative($4)|0);
- $8 = $7 << 7;
- $9 = ((($0)) + 31|0);
- $10 = HEAP8[$9>>0]|0;
- $11 = $10&255;
- $12 = $11 ^ $8;
- $13 = $12&255;
- HEAP8[$9>>0] = $13;
+ _fe_tobytes($0,$2);
  STACKTOP = sp;return;
 }
 function _get_static_memory_start() {

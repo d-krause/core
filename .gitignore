@@ -18,3 +18,8 @@
 *.iml
 /database
 /build
+npm-debug.log
+*package-lock.json
+src/native/npm-debug.log
+src/native/test
+src/native/worker-*
